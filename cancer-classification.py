@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[169]:
-
-
 # Find the direction of dataset
 import numpy as np
 import pandas as pd
@@ -11,10 +8,6 @@ import os
 #for dirname, _, filenames in os.walk('/kaggle/input'):
     #for filename in filenames:
         #print(os.path.join(dirname, filename))
-
-
-# In[170]:
-
 
 import cv2
 import matplotlib.pyplot as plt
@@ -32,9 +25,6 @@ print('Libraries Imported')
 import joblib
 
 
-# In[171]:
-
-
 from tensorflow import keras
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
@@ -44,50 +34,27 @@ import cv2
 
 # ## Preprocessing
 
-# In[172]:
-
-
 #path = '../input/mias-mammography/all-mias/'
 path = './all-mias/'
-
-
-# In[173]:
-
 
 print("reading dataframe")
 #info=pd.read_csv("../input/mias-mammography/Info.txt",sep=" ")
 info=pd.read_csv("./Info.txt",sep=" ")
 info=info.drop('Unnamed: 7',axis=1)
 
-
-# In[174]:
-
-
 info.dropna(subset = ["SEVERITY"], inplace=True)
 info.reset_index(inplace = True)
 #info
 
-
-# In[175]:
-
-
 info = info.drop([3], axis=0)
 info.reset_index(inplace = True)
 #info
-
-
-# In[176]:
-
 
 # taking the images filenames in to dictionary
 ids = {}
 for i in range(len(info)):
     ids[i] = info.REFNUM[i]
 #ids
-
-
-# In[177]:
-
 
 # Turning our outputs B-M to 1-0
 label = []
@@ -101,21 +68,9 @@ for i in range(len(info)):
         label.append(0)
         num_M+=1 
 
-
-# In[178]:
-
-
 label = np.array(label)
 
-
-# In[179]:
-
-
 label.shape,num_B,num_M
-
-
-# In[180]:
-
 
 num_list = [num_B,num_M]
 
@@ -124,31 +79,16 @@ plt.bar(range(len(num_list)), num_list,tick_label=name_list)
 plt.show()
 
 
-# In[181]:
-
-
 # define the every images filepaths in to list
 img_name = []
 
 for i in range(len(label)):
         img_name.append(path + info.REFNUM[i]+ '.pgm')
 
-
-# In[182]:
-
-
 img_name = np.array(img_name)
-
-
-# In[183]:
-
 
 #print(img_name)
 print(f'image addres amount {img_name.shape}')
-
-
-# In[194]:
-
 
 img_path = []
 last_label = []
@@ -171,14 +111,7 @@ for i in range(122):
             else:
                 last_label.append(0)
 
-
-# In[195]:
-
-
 img_path[1]
-
-
-# In[186]:
 
 
 # view image random images
@@ -201,51 +134,22 @@ def view_25_random_image():
 random_images = view_25_random_image()
 
 
-# In[196]:
-
-
 # split train and test set
 x_train, x_test, y_train, y_test = train_test_split(img_path, last_label, test_size = 0.2, random_state = 32)
 
-
-# In[197]:
-
-
 len(x_train),len(x_test),len(y_train),len(y_test)
-
-
-# In[198]:
-
 
 x_train = np.array(x_train)
 x_test = np.array(x_test)
-
-
-# In[199]:
-
 
 # flatten the images 
 nsamples, nx, ny = x_train.shape
 x_train2 = x_train.reshape((nsamples,nx*ny))
 nsamples1, nx1, ny1 = x_test.shape
 x_test2 = x_test.reshape((nsamples1,nx1*ny1))
-
-
-# In[200]:
-
-
 x_train = np.reshape(x_train, (nsamples, nx, ny, 1)) # 1 for gray scale
 x_test = np.reshape(x_test, (nsamples1, nx1, ny1, 1))
-
-
-# In[201]:
-
-
 x_train.shape,x_train2.shape,x_test.shape,x_test2.shape
-
-
-# In[202]:
-
 
 #(a,b,c)=x_train.shape # (35136, 224, 224)
 #x_train = np.reshape(x_train, (a, b, c, 1)) # 1 for gray scale
@@ -255,32 +159,17 @@ x_train.shape,x_train2.shape,x_test.shape,x_test2.shape
 
 # ## SVM code
 
-# In[203]:
-
-
 from sklearn import svm
 from sklearn.metrics import RocCurveDisplay
 model=svm.SVC(kernel = "rbf",C=10)
 model.fit(x_train2,y_train)
-
-
-# In[204]:
-
 
 # save the model
 joblib.dump(model, 'svm1.model')
 # load the model
 model = joblib.load('svm1.model')
 
-
-# In[205]:
-
-
 # model=svm.SVC(kernel = "rbf")
-
-
-# In[206]:
-
 
 y_pred=model.predict(x_test2)
 # print("The predicted Data is :")
@@ -289,38 +178,20 @@ y_pred=model.predict(x_test2)
 # print(np.array(y_test))
 # print(f"The model is {accuracy_score(y_pred,y_test)*100}% accurate")
 
-
-# In[ ]:
-
-
-
-
-
-# In[207]:
-
-
 accuracy_score(y_pred,y_test)
 print(classification_report(y_pred,y_test))
 
-
-# In[208]:
-
-
 confusion_matrix(y_pred,y_test)
-
-
-# In[209]:
-
 
 cm = confusion_matrix(y_pred,y_test)
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')    
+    plt.title(title)   
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90)   
+    plt.yticks(num_local, labels_name)   
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
@@ -328,20 +199,7 @@ plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
 plt.show()
 
 
-# In[ ]:
-
-
-
-
-
-# In[210]:
-
-
 x_test.shape
-
-
-# In[211]:
-
 
 # shuffle and split training and test sets
 #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
@@ -357,17 +215,10 @@ classifier = OneVsRestClassifier(
     svm.SVC(kernel="linear", probability=True))
 y_score = classifier.fit(x_train2, y_train).decision_function(x_test2)
 
-
-# In[212]:
-
-
 ax = plt.gca()
 rfc_disp = RocCurveDisplay.from_estimator(classifier, x_test2, y_test, ax=ax, alpha=0.8)
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
-
-
-# In[50]:
 
 
 C_list = [0.00001,0.0001,0.001,0.01,0.1,1,10,100]
@@ -380,16 +231,9 @@ for i in range(len(C_list)):
     acc_temp = accuracy_score(y_pred,y_test)
     acc_list_svm.append(acc_temp)
 
-
-# In[51]:
-
-
 plt.plot(C_list,acc_list_svm)
 plt.xlabel("C in SVM")
 plt.ylabel("accuracy")
-
-
-# In[52]:
 
 
 # Plot ROC curve
@@ -405,53 +249,27 @@ plt.ylabel("accuracy")
 #plt.show()
 
 
-# In[53]:
-
-
 #fpr_svm = fpr
 #tpr_svm = tpr
-
-
-# In[54]:
-
 
 #fpr_svm
 
 
 # ## Random forest
 
-# In[213]:
-
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import RocCurveDisplay
 model=RandomForestClassifier()
 
-
-# In[214]:
-
-
 model.fit(x_train2,y_train)
-
-
-# In[215]:
-
 
 # save the model
 joblib.dump(model, 'rf1.model')
 # load the model
 model = joblib.load('rf1.model')
 
-
-# In[216]:
-
-
 y_pred=model.predict(x_test2)
 #y_pred
-
-
-# In[217]:
-
 
 rfc = RandomForestClassifier(n_estimators=5, random_state=42)
 rfc.fit(x_train2, y_train)
@@ -460,15 +278,7 @@ rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
-
-# In[218]:
-
-
 rfc_rf = rfc 
-
-
-# In[219]:
-
 
 ax = plt.gca()
 rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8)
@@ -476,45 +286,25 @@ plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
 
-# In[ ]:
-
-
-
-
-
-# In[220]:
-
-
 accuracy_score(y_pred,y_test)
 print(classification_report(y_pred,y_test))
 
-
-# In[221]:
-
-
 confusion_matrix(y_pred,y_test)
-
-
-# In[222]:
-
 
 cm = confusion_matrix(y_pred,y_test)
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')   
+    plt.title(title)  
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90) 
+    plt.yticks(num_local, labels_name)   
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
 # plt.savefig('/HAR_cm.png', format='png')
 plt.show()
-
-
-# In[223]:
 
 
 est_list = [1,2,3,4,5,6,7,8,9,10]
@@ -527,10 +317,6 @@ for i in range(len(est_list)):
     acc_temp = accuracy_score(y_pred,y_test)
     acc_list.append(acc_temp)
 
-
-# In[224]:
-
-
 plt.plot(est_list,acc_list)
 plt.xlabel("number of estimators in Random Frest")
 plt.ylabel("accuracy")
@@ -538,14 +324,7 @@ plt.ylabel("accuracy")
 
 # ## Decision Tree
 
-# In[227]:
-
-
 from sklearn.tree import DecisionTreeClassifier
-
-
-# In[228]:
-
 
 rfc_dt = DecisionTreeClassifier()
 rfc_dt.fit(x_train2, y_train)
@@ -555,22 +334,9 @@ rfc_disp = RocCurveDisplay.from_estimator(rfc_dt, x_test2, y_test, ax=ax, alpha=
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
-
-# In[229]:
-
-
 y_pred= rfc_dt.predict(x_test2)
 #y_pred
-
-
-# In[230]:
-
-
 dtc=DecisionTreeClassifier()
-
-
-# In[231]:
-
 
 #dtc.fit(x_train2,y_train)
 # save the model
@@ -585,44 +351,22 @@ y_pred_dtc=dtc.predict(x_test2)
 
 y_pred_dtc
 
-
-# In[232]:
-
-
 accuracy_score(y_pred_dtc,y_test)
-
-
-# In[233]:
-
 
 accuracy_score(y_pred_dtc,y_test)
 print(classification_report(y_pred_dtc,y_test))
 
-
-# In[234]:
-
-
 cm = confusion_matrix(y_pred_dtc,y_test)
-
-
-# In[235]:
-
-
 confusion_matrix(y_pred_dtc,y_test)
 
-
-# In[236]:
-
-
-
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')   
+    plt.title(title)   
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90)   
+    plt.yticks(num_local, labels_name)    
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
@@ -632,25 +376,14 @@ plt.show()
 
 # ##  A Naive Bayes classifier
 
-# In[237]:
-
-
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import RocCurveDisplay
 nb=GaussianNB()
 nb.fit(x_train2,y_train)
 y_pred_nb=nb.predict(x_test2)
 
-
-# In[238]:
-
-
 var_smoothing_list = np.logspace(0,-9, num=10)
 var_smoothing_list
-
-
-# In[239]:
-
 
 var_smoothing_list = np.logspace(0,-9, num=10)
 acc_list_nb = []
@@ -665,17 +398,9 @@ plt.plot(var_smoothing_list,acc_list_nb)
 plt.xlabel("number of estimators in Naive Bayes")
 plt.ylabel("accuracy")
 
-
-# In[240]:
-
-
 acc_list_nb
 
 
-# In[241]:
-
-
-# 这段在后期可全部注释掉（与其他代码注释掉fit一行不同）
 from sklearn.model_selection import GridSearchCV
 nb = GaussianNB()
 params_NB = {'var_smoothing': np.logspace(0,-9, num=100)}
@@ -688,66 +413,32 @@ gs_NB.fit(x_train2, y_train)
 gs_NB.best_params_
 
 
-# In[242]:
-
-
 joblib.dump(gs_NB, 'gs1.model')
 # load the model
 gs_NB = joblib.load('gs1.model')
 
-
-# In[243]:
-
-
 y_pred_nb = gs_NB.predict(x_test2)
-
-
-# In[244]:
-
 
 ax = plt.gca()
 rfc_disp = RocCurveDisplay.from_estimator(gs_NB, x_test2, y_test, ax=ax, alpha=0.8)
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
-
-# In[245]:
-
-
 accuracy_score(y_pred_nb,y_test)
-
-
-# In[246]:
-
-
 
 print(classification_report(y_pred_nb,y_test))
 
-
-# In[247]:
-
-
 confusion_matrix(y_pred_nb,y_test)
-
-
-# In[248]:
-
-
 cm  = confusion_matrix(y_pred_nb,y_test)
 
-
-# In[249]:
-
-
-
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')   
+    plt.title(title)    
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90)    
+    plt.yticks(num_local, labels_name)    
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
@@ -755,10 +446,7 @@ plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
 plt.show()
 
 
-# In[262]:
-
-
-fig, ax = plt.subplots() # 创建图实例
+fig, ax = plt.subplots()
 ax = plt.gca()
 rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8)
 rfc_disp = RocCurveDisplay.from_estimator(classifier, x_test2, y_test, ax=ax, alpha=0.8)
@@ -774,24 +462,12 @@ plt.show()
 
 # ## Logistic regression
 
-# In[91]:
-
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import RocCurveDisplay
-
-
-# In[92]:
-
 
 clf = LogisticRegression(penalty='none', 
                          tol=0.1, solver='saga',
                          multi_class='multinomial').fit(x_train2,y_train)
-
-
-# In[93]:
-
-
 rfc_lr = clf
 rfc_lr.fit(x_train2, y_train)
 ax = plt.gca()
@@ -800,48 +476,20 @@ rfc_disp = RocCurveDisplay.from_estimator(rfc_lr, x_test2, y_test, ax=ax, alpha=
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
-
-# In[94]:
-
-
 joblib.dump(rfc_lr, 'lr1.model')
 # load the model
 model = joblib.load('lr1.model')
 
-
-# In[95]:
-
-
 #clf.fit(x_train2,y_train)
-
-
-# In[96]:
-
 
 y_pred_dtc=clf.predict(x_test2)
 y_pred_dtc
 
-
-# In[97]:
-
-
 accuracy_score(y_pred_dtc,y_test)
-
-
-# In[98]:
-
 
 print(classification_report(y_pred_dtc,y_test))
 
-
-# In[99]:
-
-
 confusion_matrix(y_pred,y_test)
-
-
-# In[100]:
-
 
 rfc = clf
 rfc.fit(x_train2, y_train)
@@ -851,20 +499,17 @@ rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8
 plt.plot([0, 1], [0, 1], 'k--')
 plt.show()
 
-
-# In[101]:
-
-
 y_pred = y_pred_dtc
 cm = confusion_matrix(y_pred,y_test)
+
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')    
+    plt.title(title)    
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90)    
+    plt.yticks(num_local, labels_name)  
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
@@ -874,10 +519,7 @@ plt.show()
 
 # # plot all the roc in one figure without cnn
 
-# In[104]:
-
-
-fig, ax = plt.subplots() # 创建图实例
+fig, ax = plt.subplots() 
 ax = plt.gca()
 rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8)
 rfc_disp = RocCurveDisplay.from_estimator(classifier, x_test2, y_test, ax=ax, alpha=0.8)
@@ -892,9 +534,6 @@ plt.show()
 
 
 # ## CNN code
-
-# In[106]:
-
 
 def create_model():
     model = Sequential()
@@ -912,22 +551,8 @@ def create_model():
     model.add(Dense(1, activation='sigmoid'))
     return model
 
-
-# In[107]:
-
-
 model = create_model()
 model.summary()
-
-
-# In[ ]:
-
-
-
-
-
-# In[108]:
-
 
 early_stop = EarlyStopping(monitor='val_loss', mode='min', patience=0,restore_best_weights=True, verbose=1)
 
@@ -936,17 +561,9 @@ check_point_filepath = './'
 model_check_point = ModelCheckpoint(filepath =check_point_filepath, monitor='val_loss', verbose=1, save_best_only=True,
                                     save_weights_only=False, mode='auto', save_freq='epoch')
 
-
-# In[109]:
-
-
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
-
-
-# In[110]:
-
 
 load_model = True
 if load_model:
@@ -959,23 +576,9 @@ else:
                      epochs=1000,
                      batch_size=64)
 
-
-# In[ ]:
-
-
-
-
-
-# In[111]:
-
-
 # save the model 
 #model.save('m2.h5')
 # model.save_weights('m5.h5')
-
-
-# In[112]:
-
 
 loss_value , accuracy = model.evaluate(x_test, y_test)
 
@@ -983,11 +586,6 @@ print('Test_loss_value = ' +str(loss_value))
 print('test_accuracy = ' + str(accuracy))
 
 print(model.predict(x_test))
-
-
-# In[113]:
-
-
 
 def Visualize_Result(acc,val_acc,loss, val_loss):
     fig, (ax1, ax2) = plt.subplots(nrows = 1,
@@ -1031,26 +629,9 @@ def Visualize_Result(acc,val_acc,loss, val_loss):
 visualize_result = Visualize_Result(hist.history['accuracy'],hist.history['val_accuracy'], hist.history['loss'], hist.history['val_loss'])
 
 
-# In[114]:
-
-
 y_pred=model.predict(x_test)
-
-
-# In[115]:
-
-
 y_pred.shape
-
-
-# In[116]:
-
-
 accuracy_score(y_pred,y_test)
-
-
-# In[117]:
-
 
 # calculating ROC
 for  i in range(len(y_pred)):
@@ -1061,29 +642,21 @@ for  i in range(len(y_pred)):
 cf_matrix = confusion_matrix(y_test, y_pred)
 cf_matrix
 
-
-# In[118]:
-
-
 y_pred = y_pred_dtc
 cm = confusion_matrix(y_test, y_pred)
 def plot_confusion_matrix(cm, labels_name, title):
-    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    # 归一化
-    plt.imshow(cm, interpolation='nearest')    # 在特定的窗口上显示图像
-    plt.title(title)    # 图像标题
+    cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]    
+    plt.imshow(cm, interpolation='nearest')    
+    plt.title(title)    
     plt.colorbar()
     num_local = np.array(range(len(labels_name)))    
-    plt.xticks(num_local, labels_name, rotation=90)    # 将标签印在x轴坐标上
-    plt.yticks(num_local, labels_name)    # 将标签印在y轴坐标上
+    plt.xticks(num_local, labels_name, rotation=90)    
+    plt.yticks(num_local, labels_name)    
     plt.ylabel('True label')    
     plt.xlabel('Predicted label')
 plot_confusion_matrix(cm, name_list, "HAR Confusion Matrix")
 # plt.savefig('/HAR_cm.png', format='png')
 plt.show()
-
-
-# In[119]:
-
 
 from sklearn.metrics import roc_curve, auc
 nn_fpr_keras, nn_tpr_keras, nn_thresholds_keras = roc_curve(y_test, y_pred)
@@ -1095,9 +668,6 @@ plt.show()
 
 
 # ## ResNet code
-
-# In[ ]:
-
 
 class ResidualBlock(torch.nn.Module):
     def __init__(self,channels):
@@ -1147,10 +717,7 @@ for epoch in range(1, epochs + 1):
 
 # # plot all the roc in one figure with CNN
 
-# In[109]:
-
-
-fig, ax = plt.subplots() # 创建图实例
+fig, ax = plt.subplots() 
 ax = plt.gca()
 #rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8)
 rfc_disp = RocCurveDisplay.from_estimator(classifier, x_test2, y_test, ax=ax, alpha=0.8)
@@ -1163,11 +730,7 @@ plt.plot([0, 1], [0, 1], 'k--')
 ax.legend() 
 plt.show() 
 
-
-# In[120]:
-
-
-fig, ax = plt.subplots() # 创建图实例
+fig, ax = plt.subplots() 
 ax = plt.gca()
 #rfc_disp = RocCurveDisplay.from_estimator(rfc, x_test2, y_test, ax=ax, alpha=0.8)
 rfc_disp = RocCurveDisplay.from_estimator(classifier, x_test2, y_test, ax=ax, alpha=0.8)
@@ -1179,10 +742,4 @@ plt.plot(nn_fpr_keras, nn_tpr_keras, marker='.', label='Neural Network (auc = %0
 plt.plot([0, 1], [0, 1], 'k--')
 ax.legend() 
 plt.show() 
-
-
-# In[ ]:
-
-
-
 
